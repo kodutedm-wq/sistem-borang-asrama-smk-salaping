@@ -1,0 +1,59 @@
+{
+  "entities": {
+    "PermohonanAsrama": {
+      "title": "PermohonanAsrama",
+      "description": "Rekod permohonan kemasukan sementara asrama harian SMK Salaping",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "ID unik permohonan" },
+        "noRujukan": { "type": "string", "description": "Nombor rujukan rasmi borang" },
+        "tarikhPermohonan": { "type": "string", "description": "Tarikh permohonan dihantar" },
+        "namaPelajar": { "type": "string", "description": "Nama penuh murid" },
+        "noKP": { "type": "string", "description": "No kad pengenalan murid" },
+        "jantina": { "type": "string", "description": "Lelaki (Aspura) atau Perempuan (Aspuri)", "enum": ["Lelaki", "Perempuan"] },
+        "tingkatanKelas": { "type": "string", "description": "Tingkatan dan nama kelas" },
+        "namaSekolah": { "type": "string", "description": "Nama sekolah asal/semasa" },
+        "namaPenjaga": { "type": "string", "description": "Nama ibu bapa atau penjaga" },
+        "noTelefonPenjaga": { "type": "string", "description": "Nombor telefon kecemasan penjaga" },
+        "hubunganPenjaga": { "type": "string", "description": "Hubungan dengan murid" },
+        "alamatRumah": { "type": "string", "description": "Alamat kediaman keluarga" },
+        "fotoUrl": { "type": "string", "description": "Gambar pasport atau swafoto pelajar" },
+        "fotoType": { "type": "string", "enum": ["passport", "swafoto"] },
+        "statusKesihatan": { "type": "string", "description": "Status kesihatan am pelajar" },
+        "namaDoktorKlinik": { "type": "string", "description": "Nama doktor atau klinik pemeriksaan" },
+        "tarikhPemeriksaan": { "type": "string", "description": "Tarikh pengesahan kesihatan" },
+        "rekodAlahanPenyakit": { "type": "string", "description": "Catatan alahan makanan atau ubat" },
+        "catatanKesihatan": { "type": "string", "description": "Catatan perubatan tambahan" },
+        "dokumenKesihatanUrl": { "type": "string", "description": "Gambar imbasan borang pengesahan doktor" },
+        "tarikhUploadKesihatan": { "type": "string", "description": "Tarikh dokumen dimuat naik" },
+        "bayaranBon": { "type": "number", "description": "Kadar deposit bon asrama (RM30)" },
+        "kadarHarian": { "type": "number", "description": "Kadar harian jika ada" },
+        "tempohHari": { "type": "number", "description": "Jumlah hari penginapan sementara" },
+        "yuranMakan": { "type": "number", "description": "Yuran makanan" },
+        "yuranPenginapan": { "type": "number", "description": "Yuran penginapan" },
+        "jumlahYuran": { "type": "number", "description": "Jumlah bayaran (RM30 bon)" },
+        "statusBayaran": { "type": "string", "description": "Status bayaran bon" },
+        "noResit": { "type": "string", "description": "Nombor resit jika dibayar" },
+        "kaedahBayaran": { "type": "string", "description": "Kaedah pembayaran" },
+        "tarikhMasuk": { "type": "string", "description": "Tarikh mula masuk asrama" },
+        "tarikhKeluar": { "type": "string", "description": "Tarikh tamat keluar asrama" },
+        "sebabKemasukan": { "type": "string", "description": "Alasan permohonan kemasukan sementara" },
+        "bilikDormDicadangkan": { "type": "string", "description": "Nama bilik dorm yang dicadangkan" },
+        "catatanKemasukan": { "type": "string", "description": "Catatan tambahan permohonan" },
+        "statusKelulusan": { "type": "string", "enum": ["DILULUSKAN", "MENUNGGU KELULUSAN", "TIDAK DILULUSKAN"] },
+        "tarikhKeputusan": { "type": "string", "description": "Tarikh kelulusan dibuat" },
+        "namaWardenPenilai": { "type": "string", "description": "Nama warden yang menilai" },
+        "catatanWarden": { "type": "string", "description": "Ulasan atau syarat warden" },
+        "namaPengetua": { "type": "string", "description": "Nama pengetua mengesahkan" },
+        "tarikhPengesahanPengetua": { "type": "string", "description": "Tarikh pengesahan pengetua" }
+      },
+      "required": ["id", "noRujukan", "namaPelajar", "noKP", "jantina", "tingkatanKelas", "statusKelulusan"]
+    }
+  },
+  "firestore": {
+    "/permohonan/{id}": {
+      "schema": "PermohonanAsrama",
+      "description": "Koleksi semua permohonan kemasukan asrama yang dihantar oleh pelajar dan dinilai oleh pihak pentadbir"
+    }
+  }
+}

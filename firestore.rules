@@ -1,0 +1,25 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper function for ID validation
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128;
+    }
+
+    // Rules for permohonan asrama
+    match /permohonan/{id} {
+      allow read: if true;
+      allow create: if isValidId(id) 
+                    && request.resource.data.namaPelajar is string
+                    && request.resource.data.noKP is string
+                    && request.resource.data.statusKelulusan in ['DILULUSKAN', 'MENUNGGU KELULUSAN', 'TIDAK DILULUSKAN'];
+      allow update: if isValidId(id);
+      allow delete: if isValidId(id);
+    }
+
+    // Test connection doc
+    match /test/{docId} {
+      allow read, write: if true;
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "Sistem e-Borang Asrama Salaping",
+  "description": "Sistem pengurusan dan cetakan borang kemasukan khas sementara asrama dengan analisis automatik Aspura/Aspuri dan senarai rasmi Pengetua.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
