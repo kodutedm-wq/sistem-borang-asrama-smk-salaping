@@ -135,9 +135,13 @@ export default function App() {
             const items = Array.isArray(parsed) ? parsed : [parsed];
             items.forEach((item: any) => {
               if (item && item.id && item.namaPelajar) {
-                const cleanItem = sanitizeOfficialNames(item as PermohonanAsrama);
-                if (!mergedMap.has(cleanItem.id)) {
-                  mergedMap.set(cleanItem.id, cleanItem);
+                // Purge generated demo student IDs so they never reappear
+                const isDemoId = /^kks-2026-0(0[1-9]|1[0-8])$/.test(item.id);
+                if (!isDemoId) {
+                  const cleanItem = sanitizeOfficialNames(item as PermohonanAsrama);
+                  if (!mergedMap.has(cleanItem.id)) {
+                    mergedMap.set(cleanItem.id, cleanItem);
+                  }
                 }
               }
             });
@@ -145,23 +149,16 @@ export default function App() {
         }
       });
 
-      // Seed with INITIAL_STUDENTS (18 official records) so Vercel or any fresh device always has full records
-      INITIAL_STUDENTS.forEach(student => {
-        if (!mergedMap.has(student.id)) {
-          mergedMap.set(student.id, student);
-        }
-      });
-
       const list = Array.from(mergedMap.values());
       list.sort((a, b) => (b.tarikhPermohonan || '').localeCompare(a.tarikhPermohonan || '') || b.id.localeCompare(a.id));
-      // Immediately normalize all keys to this consolidated list!
+      // Immediately normalize all keys to this clean list!
       persistToAllStorage(list);
       return list;
     } catch (e) {
       console.error("Error loading stored students:", e);
     }
-    persistToAllStorage(INITIAL_STUDENTS);
-    return INITIAL_STUDENTS;
+    clearAllStorage();
+    return [];
   });
 
   // Real-time Cloud Firestore synchronization (Stable, Non-Destructive, No Ghost Resurrections)
@@ -182,15 +179,18 @@ export default function App() {
             }
           });
 
-          // 2. Merge cloud updates (e.g. approved statuses, official timestamps)
+          // 2. Merge cloud updates (ignoring any old demo records)
           cloudList.forEach(s => {
             if (s && s.id && s.namaPelajar) {
-              const cleanCloud = sanitizeOfficialNames(s);
-              const localExisting = map.get(cleanCloud.id);
-              if (localExisting) {
-                map.set(cleanCloud.id, { ...localExisting, ...cleanCloud });
-              } else {
-                map.set(cleanCloud.id, cleanCloud);
+              const isDemoId = /^kks-2026-0(0[1-9]|1[0-8])$/.test(s.id);
+              if (!isDemoId) {
+                const cleanCloud = sanitizeOfficialNames(s);
+                const localExisting = map.get(cleanCloud.id);
+                if (localExisting) {
+                  map.set(cleanCloud.id, { ...localExisting, ...cleanCloud });
+                } else {
+                  map.set(cleanCloud.id, cleanCloud);
+                }
               }
             }
           });
@@ -374,18 +374,21 @@ export default function App() {
 
   // Empty all data handler
   const handleClearAll = async () => {
-    if (confirm("Adakah anda pasti ingin mengosongkan semua data pemohon?")) {
+    if (confirm("Adakah anda pasti ingin mengosongkan semua data pemohon? Sistem akan kembali bersih (0 rekod) untuk diisi oleh pelajar sebenar.")) {
       const toDelete = [...students];
       setStudents([]);
       setSelectedStudentId(null);
       clearAllStorage();
 
+      // Also queue deletion of any leftover demo IDs from cloud
+      const demoIdsToDelete = Array.from({ length: 18 }, (_, i) => `kks-2026-${String(i + 1).padStart(3, '0')}`);
+      demoIdsToDelete.forEach(id => deletePermohonanFromCloud(id).catch(() => {}));
+
       try {
         await Promise.all(toDelete.map(s => deletePermohonanFromCloud(s.id)));
-        showToast("Semua data pangkalan data telah dikosongkan.");
+        showToast("Semua data telah dikosongkan. Sistem kini bersih 100%.");
       } catch (e) {
-        console.error("Clear error:", e);
-        showToast("Data tempatan telah dikosongkan.");
+        showToast("Data peranti telah dikosongkan sepenuhnya.");
       }
     }
   };
