@@ -42,6 +42,32 @@ const HISTORICAL_STORAGE_KEYS = [
   'asrama_students'
 ];
 
+// Helper to replace any lingering demo names from earlier records
+const sanitizeOfficialNames = (item: PermohonanAsrama): PermohonanAsrama => {
+  let warden = item.namaWardenPenilai;
+  let pengetua = item.namaPengetua;
+  let changed = false;
+
+  if (!warden || warden.includes('Ahmad Fauzi') || warden.includes('Fauzi')) {
+    warden = 'SYED MOHAMAD ASHRAF BIN MOKDIN (Ketua Warden Asrama Salaping)';
+    changed = true;
+  }
+
+  if (!pengetua || pengetua.includes('Radzi') || pengetua.includes('Kassim')) {
+    pengetua = 'SANALEH BIN DAUD';
+    changed = true;
+  }
+
+  if (changed) {
+    return {
+      ...item,
+      namaWardenPenilai: warden,
+      namaPengetua: pengetua
+    };
+  }
+  return item;
+};
+
 export default function App() {
   // User role: 'pemohon' (Pelajar/Pemohon - Default) vs 'pentadbir' (Warden/Pengetua)
   const [userRole, setUserRole] = useState<'pemohon' | 'pentadbir'>('pemohon');
@@ -57,7 +83,7 @@ export default function App() {
   const [mySubmission, setMySubmission] = useState<PermohonanAsrama | null>(() => {
     try {
       const saved = localStorage.getItem(MY_SUBMISSION_KEY);
-      if (saved) return JSON.parse(saved);
+      if (saved) return sanitizeOfficialNames(JSON.parse(saved));
     } catch (e) {
       console.error("Error loading my submission:", e);
     }
@@ -76,8 +102,9 @@ export default function App() {
             const items = Array.isArray(parsed) ? parsed : [parsed];
             items.forEach((item: any) => {
               if (item && item.id && item.namaPelajar) {
-                if (!mergedMap.has(item.id)) {
-                  mergedMap.set(item.id, item as PermohonanAsrama);
+                const cleanItem = sanitizeOfficialNames(item as PermohonanAsrama);
+                if (!mergedMap.has(cleanItem.id)) {
+                  mergedMap.set(cleanItem.id, cleanItem);
                 }
               }
             });
@@ -111,7 +138,7 @@ export default function App() {
           // 1. Preserve all existing local students
           prev.forEach(s => {
             if (s && s.id && s.namaPelajar) {
-              map.set(s.id, s);
+              map.set(s.id, sanitizeOfficialNames(s));
             }
           });
 
@@ -124,7 +151,7 @@ export default function App() {
                 const items = Array.isArray(parsed) ? parsed : [parsed];
                 items.forEach((item: any) => {
                   if (item && item.id && item.namaPelajar && !map.has(item.id)) {
-                    map.set(item.id, item as PermohonanAsrama);
+                    map.set(item.id, sanitizeOfficialNames(item as PermohonanAsrama));
                   }
                 });
               } catch (e) {}
@@ -135,7 +162,7 @@ export default function App() {
           const cloudIds = new Set(cloudList.map(c => c.id));
           cloudList.forEach(s => {
             if (s && s.id && s.namaPelajar) {
-              map.set(s.id, s);
+              map.set(s.id, sanitizeOfficialNames(s));
             }
           });
 

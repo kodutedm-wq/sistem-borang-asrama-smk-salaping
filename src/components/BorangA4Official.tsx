@@ -127,6 +127,15 @@ export const BorangA4Official: React.FC<BorangA4OfficialProps> = ({
 
   const isApproved = student.statusKelulusan === 'DILULUSKAN';
 
+  // Sanitized Warden & Pengetua Name (Replaces any old demo names on existing records)
+  const officialWardenName = (!student.namaWardenPenilai || student.namaWardenPenilai.includes('Ahmad Fauzi') || student.namaWardenPenilai.includes('Fauzi'))
+    ? 'SYED MOHAMAD ASHRAF BIN MOKDIN (Ketua Warden Asrama Salaping)'
+    : student.namaWardenPenilai;
+
+  const officialPengetuaName = (!student.namaPengetua || student.namaPengetua.includes('Radzi') || student.namaPengetua.includes('Kassim'))
+    ? 'SANALEH BIN DAUD'
+    : student.namaPengetua;
+
   return (
     <div className="space-y-4">
       
@@ -567,7 +576,9 @@ export const BorangA4Official: React.FC<BorangA4OfficialProps> = ({
                   </div>
                   <div className="col-span-4 flex items-baseline">
                     <span className="w-24 text-slate-500 font-medium shrink-0">Bilik/Dorm:</span>
-                    <span className="font-bold text-blue-900 truncate">{student.bilikDormDicadangkan || 'Dorm Sementara'}</span>
+                    <span className="font-bold text-slate-900 truncate">
+                      {student.bilikDormDicadangkan || <span className="text-slate-400 font-normal italic">Belum Ditetapkan</span>}
+                    </span>
                   </div>
                 </div>
 
@@ -654,7 +665,7 @@ export const BorangA4Official: React.FC<BorangA4OfficialProps> = ({
                       )}
                     </div>
                     <div className="text-[8.5px] text-slate-600">
-                      <div>Nama/Cop: <span className="font-medium text-slate-900 truncate">{student.namaWardenPenilai || SCHOOL_INFO.namaKetuaWarden}</span></div>
+                      <div>Nama/Cop: <span className="font-medium text-slate-900 truncate">{officialWardenName}</span></div>
                       <div>Tarikh: <span className="font-mono">{student.tarikhKeputusan !== '-' ? student.tarikhKeputusan : student.tarikhPermohonan}</span></div>
                     </div>
                   </div>
@@ -721,7 +732,7 @@ export const BorangA4Official: React.FC<BorangA4OfficialProps> = ({
             <div>
               <span>Sistem e-Borang Asrama Salaping • No. Dokumen: </span>
               <span className="font-mono font-semibold text-slate-700">{student.noRujukan}</span>
-              <span> • Disahkan oleh Pengetua: <strong>{SCHOOL_INFO.namaPengetua}</strong></span>
+              <span> • Disahkan oleh Pengetua: <strong>{officialPengetuaName}</strong></span>
             </div>
             <div className="font-mono text-slate-600 font-medium">
               HELAIAN 1 DARIPADA 1 (A4 RASMI)

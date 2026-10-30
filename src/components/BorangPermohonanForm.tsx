@@ -98,17 +98,7 @@ export const BorangPermohonanForm: React.FC<BorangPermohonanFormProps> = ({
     if (cleaned.length >= 1) {
       const lastDigit = parseInt(cleaned[cleaned.length - 1], 10);
       if (!isNaN(lastDigit)) {
-        if (lastDigit % 2 === 1) {
-          setJantina('Lelaki');
-          if (bilikDormDicadangkan.includes('Mawar') || bilikDormDicadangkan.includes('Aspuri')) {
-            setBilikDormDicadangkan('Dorm Al-Farabi 02 (Blok Aspura)');
-          }
-        } else {
-          setJantina('Perempuan');
-          if (bilikDormDicadangkan.includes('Al-Farabi') || bilikDormDicadangkan.includes('Aspura')) {
-            setBilikDormDicadangkan('Dorm Mawar Putih 04 (Blok Aspuri)');
-          }
-        }
+        setJantina(lastDigit % 2 === 1 ? 'Lelaki' : 'Perempuan');
       }
     }
   };
@@ -889,17 +879,46 @@ export const BorangPermohonanForm: React.FC<BorangPermohonanFormProps> = ({
             </div>
 
             <div>
-              <label className="block text-slate-600 font-semibold mb-1">
-                Cadangan Bilik / Dorm *
-              </label>
-              <input
-                type="text"
-                required
-                value={bilikDormDicadangkan}
-                onChange={(e) => setBilikDormDicadangkan(e.target.value)}
-                placeholder="Contoh: Dorm Al-Farabi 02 (Aspura)"
-                className="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-slate-900 font-medium focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900"
-              />
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-slate-700 font-bold text-xs">
+                  Bilik / Dorm (Boleh Dikosongkan)
+                </label>
+                {bilikDormDicadangkan && (
+                  <button
+                    type="button"
+                    onClick={() => setBilikDormDicadangkan('')}
+                    className="text-[10px] text-rose-600 hover:text-rose-800 font-semibold cursor-pointer underline"
+                  >
+                    Kosongkan
+                  </button>
+                )}
+              </div>
+              <div className="relative">
+                <input
+                  type="text"
+                  list="senarai-dorm-options"
+                  value={bilikDormDicadangkan}
+                  onChange={(e) => setBilikDormDicadangkan(e.target.value)}
+                  placeholder="Kosongkan atau taip / pilih bilik dorm..."
+                  className="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-slate-900 font-medium focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900 text-xs"
+                />
+                <datalist id="senarai-dorm-options">
+                  <option value="Dorm Al-Farabi 01 (Blok Aspura)" />
+                  <option value="Dorm Al-Farabi 02 (Blok Aspura)" />
+                  <option value="Dorm Al-Ghazali 01 (Blok Aspura)" />
+                  <option value="Dorm Al-Ghazali 02 (Blok Aspura)" />
+                  <option value="Dorm Ibnu Sina 01 (Blok Aspura)" />
+                  <option value="Dorm Mawar Putih 01 (Blok Aspuri)" />
+                  <option value="Dorm Mawar Putih 02 (Blok Aspuri)" />
+                  <option value="Dorm Mawar Putih 04 (Blok Aspuri)" />
+                  <option value="Dorm Melati Anggun 01 (Blok Aspuri)" />
+                  <option value="Dorm Melati Anggun 02 (Blok Aspuri)" />
+                  <option value="Bilik Transit Sementara Asrama" />
+                </datalist>
+              </div>
+              <p className="text-[10px] text-slate-500 mt-1">
+                Pilihan ini boleh dibiarkan kosong dan boleh diisi atau dikemas kini bila-bila masa oleh pihak warden.
+              </p>
             </div>
 
             <div className="sm:col-span-2">
