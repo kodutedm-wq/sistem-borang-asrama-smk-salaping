@@ -161,7 +161,7 @@ export const DashboardTable: React.FC<DashboardTableProps> = ({
                           {student.tingkatanKelas}
                         </div>
                         <div className="text-[10px] text-slate-500 truncate max-w-[150px] font-medium">
-                          {student.bilikDormDicadangkan || <span className="text-slate-400 italic">Belum ditetapkan</span>}
+                          {student.bilikDormDicadangkan && !student.bilikDormDicadangkan.includes('Al-Farabi') && !student.bilikDormDicadangkan.includes('Mawar') ? student.bilikDormDicadangkan : <span className="text-slate-400 italic">Belum ditetapkan</span>}
                         </div>
                       </div>
                     </td>

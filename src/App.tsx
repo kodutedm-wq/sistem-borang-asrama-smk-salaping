@@ -46,6 +46,7 @@ const HISTORICAL_STORAGE_KEYS = [
 const sanitizeOfficialNames = (item: PermohonanAsrama): PermohonanAsrama => {
   let warden = item.namaWardenPenilai;
   let pengetua = item.namaPengetua;
+  let dorm = item.bilikDormDicadangkan || '';
   let changed = false;
 
   if (!warden || warden.includes('Ahmad Fauzi') || warden.includes('Fauzi')) {
@@ -58,11 +59,18 @@ const sanitizeOfficialNames = (item: PermohonanAsrama): PermohonanAsrama => {
     changed = true;
   }
 
+  // Clear demo dorm room names so they remain empty
+  if (dorm && (dorm.includes('Al-Farabi') || dorm.includes('Mawar') || dorm.includes('Sementara') || dorm.includes('Melati') || dorm.includes('Al-Ghazali') || dorm.includes('Ibnu Sina'))) {
+    dorm = '';
+    changed = true;
+  }
+
   if (changed) {
     return {
       ...item,
       namaWardenPenilai: warden,
-      namaPengetua: pengetua
+      namaPengetua: pengetua,
+      bilikDormDicadangkan: dorm
     };
   }
   return item;

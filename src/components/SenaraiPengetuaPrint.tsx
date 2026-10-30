@@ -263,7 +263,11 @@ export const SenaraiPengetuaPrint: React.FC<SenaraiPengetuaPrintProps> = ({
                     </td>
 
                     <td className="py-2 px-2 text-[10px] text-slate-700 border border-slate-200">
-                      <div className="font-medium text-slate-900">{student.bilikDormDicadangkan || '-'}</div>
+                      <div className="font-medium text-slate-900">
+                        {student.bilikDormDicadangkan && !student.bilikDormDicadangkan.includes('Al-Farabi') && !student.bilikDormDicadangkan.includes('Mawar') 
+                          ? student.bilikDormDicadangkan 
+                          : '-'}
+                      </div>
                       <div className="text-[9px] text-slate-500 truncate" title={student.sebabKemasukan}>
                         {student.sebabKemasukan}
                       </div>

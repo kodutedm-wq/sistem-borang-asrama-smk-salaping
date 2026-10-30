@@ -49,14 +49,14 @@ export const DEMO_STUDENTS: PermohonanAsrama[] = [
     tarikhMasuk: '2026-10-05',
     tarikhKeluar: '2026-10-19',
     sebabKemasukan: 'Menghadiri Kem Intensif Kecemerlangan SPM & Ibu Bapa Bertugas Luar Stesen',
-    bilikDormDicadangkan: 'Dorm Al-Farabi 02 (Blok Aspura)',
+    bilikDormDicadangkan: '',
     catatanKemasukan: 'Pelajar berdisiplin tinggi, wakil debat sekolah',
 
     // Kelulusan
     statusKelulusan: 'DILULUSKAN',
     tarikhKeputusan: '2026-09-30',
     namaWardenPenilai: 'SYED MOHAMAD ASHRAF BIN MOKDIN (Ketua Warden Asrama Salaping)',
-    catatanWarden: 'Permohonan lengkap, dokumen perubatan disahkan. Diluluskan penempatan sementara di Dorm Al-Farabi 02.',
+    catatanWarden: 'Permohonan lengkap, dokumen perubatan disahkan. Diluluskan penempatan sementara di asrama.',
     namaPengetua: 'SANALEH BIN DAUD',
     tarikhPengesahanPengetua: '2026-10-01'
   },
@@ -98,7 +98,7 @@ export const DEMO_STUDENTS: PermohonanAsrama[] = [
     tarikhMasuk: '2026-10-06',
     tarikhKeluar: '2026-10-16',
     sebabKemasukan: 'Latihan Pusat Pertandingan Robotik Peringkat Negeri & Rumah Sedang Dibaikpulih',
-    bilikDormDicadangkan: 'Dorm Mawar Putih 04 (Blok Aspuri)',
+    bilikDormDicadangkan: '',
     catatanKemasukan: 'Perlu kebenaran keluar latihan pada petang Rabu',
 
     // Kelulusan

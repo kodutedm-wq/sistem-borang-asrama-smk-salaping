@@ -149,6 +149,11 @@ export const BorangA4Official: React.FC<BorangA4OfficialProps> = ({
     ? 'SANALEH BIN DAUD'
     : student.namaPengetua;
 
+  // Clean dorm - strip any demo names so dorm remains empty
+  const rawDorm = student.bilikDormDicadangkan || '';
+  const isDemoDorm = rawDorm.includes('Al-Farabi') || rawDorm.includes('Mawar') || rawDorm.includes('Melati') || rawDorm.includes('Al-Ghazali') || rawDorm.includes('Ibnu Sina') || rawDorm.includes('Sementara');
+  const cleanDorm = isDemoDorm ? '' : rawDorm;
+
   return (
     <div className="space-y-4">
       
@@ -590,7 +595,7 @@ export const BorangA4Official: React.FC<BorangA4OfficialProps> = ({
                   <div className="col-span-4 flex items-baseline">
                     <span className="w-24 text-slate-500 font-medium shrink-0">Bilik/Dorm:</span>
                     <span className="font-bold text-slate-900 truncate">
-                      {student.bilikDormDicadangkan || <span className="text-slate-400 font-normal italic">Belum Ditetapkan</span>}
+                      {cleanDorm || <span className="font-mono text-slate-400 font-normal">________________</span>}
                     </span>
                   </div>
                 </div>

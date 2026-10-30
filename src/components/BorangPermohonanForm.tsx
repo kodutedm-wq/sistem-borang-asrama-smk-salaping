@@ -881,7 +881,7 @@ export const BorangPermohonanForm: React.FC<BorangPermohonanFormProps> = ({
             <div>
               <div className="flex items-center justify-between mb-1">
                 <label className="block text-slate-700 font-bold text-xs">
-                  Bilik / Dorm (Boleh Dikosongkan)
+                  Bilik / Dorm
                 </label>
                 {bilikDormDicadangkan && (
                   <button
@@ -893,31 +893,15 @@ export const BorangPermohonanForm: React.FC<BorangPermohonanFormProps> = ({
                   </button>
                 )}
               </div>
-              <div className="relative">
-                <input
-                  type="text"
-                  list="senarai-dorm-options"
-                  value={bilikDormDicadangkan}
-                  onChange={(e) => setBilikDormDicadangkan(e.target.value)}
-                  placeholder="Kosongkan atau taip / pilih bilik dorm..."
-                  className="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-slate-900 font-medium focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900 text-xs"
-                />
-                <datalist id="senarai-dorm-options">
-                  <option value="Dorm Al-Farabi 01 (Blok Aspura)" />
-                  <option value="Dorm Al-Farabi 02 (Blok Aspura)" />
-                  <option value="Dorm Al-Ghazali 01 (Blok Aspura)" />
-                  <option value="Dorm Al-Ghazali 02 (Blok Aspura)" />
-                  <option value="Dorm Ibnu Sina 01 (Blok Aspura)" />
-                  <option value="Dorm Mawar Putih 01 (Blok Aspuri)" />
-                  <option value="Dorm Mawar Putih 02 (Blok Aspuri)" />
-                  <option value="Dorm Mawar Putih 04 (Blok Aspuri)" />
-                  <option value="Dorm Melati Anggun 01 (Blok Aspuri)" />
-                  <option value="Dorm Melati Anggun 02 (Blok Aspuri)" />
-                  <option value="Bilik Transit Sementara Asrama" />
-                </datalist>
-              </div>
+              <input
+                type="text"
+                value={bilikDormDicadangkan}
+                onChange={(e) => setBilikDormDicadangkan(e.target.value)}
+                placeholder="(Dikosongkan - akan diisi oleh warden)"
+                className="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-slate-900 font-medium focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900 text-xs"
+              />
               <p className="text-[10px] text-slate-500 mt-1">
-                Pilihan ini boleh dibiarkan kosong dan boleh diisi atau dikemas kini bila-bila masa oleh pihak warden.
+                Dikosongkan dalam borang. Boleh diisi atau dikemas kini bila-bila masa oleh pihak warden.
               </p>
             </div>
 
