@@ -158,33 +158,9 @@ export const LoginModal: React.FC<LoginModalProps> = ({
             </div>
           </div>
 
-          {/* Quick-fill helpers */}
-          <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-2.5 text-[11px] text-slate-600">
-            <span className="block font-bold text-slate-800 mb-1.5 text-[10px] uppercase tracking-wider">
-              Akses Pantas:
-            </span>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  setUsername('warden');
-                  setPassword('asrama2026');
-                }}
-                className="flex-1 py-1 bg-white hover:bg-slate-100 border border-slate-300 rounded-lg text-[10.5px] font-semibold text-slate-800 shadow-2xs transition-colors cursor-pointer text-center"
-              >
-                Warden (asrama2026)
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setUsername('pengetua');
-                  setPassword('salaping2026');
-                }}
-                className="flex-1 py-1 bg-white hover:bg-slate-100 border border-slate-300 rounded-lg text-[10.5px] font-semibold text-slate-800 shadow-2xs transition-colors cursor-pointer text-center"
-              >
-                Pengetua (salaping2026)
-              </button>
-            </div>
+          <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-3 text-[11px] text-slate-500 flex items-center gap-2">
+            <Lock className="w-4 h-4 text-slate-400 shrink-0" />
+            <span>Kawasan capaian terhad. Sila masukkan ID pengguna dan kata laluan rasmi pentadbir anda.</span>
           </div>
 
           {/* Action Buttons */}
