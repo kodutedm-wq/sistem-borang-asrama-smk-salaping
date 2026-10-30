@@ -55,9 +55,9 @@ export const DEMO_STUDENTS: PermohonanAsrama[] = [
     // Kelulusan
     statusKelulusan: 'DILULUSKAN',
     tarikhKeputusan: '2026-09-30',
-    namaWardenPenilai: 'Ustaz Ahmad Fauzi (Ketua Warden Asrama Salaping)',
+    namaWardenPenilai: 'SYED MOHAMAD ASHRAF BIN MOKDIN (Ketua Warden Asrama Salaping)',
     catatanWarden: 'Permohonan lengkap, dokumen perubatan disahkan. Diluluskan penempatan sementara di Dorm Al-Farabi 02.',
-    namaPengetua: 'Tn. Haji Mohd Radzi bin Kassim',
+    namaPengetua: 'SANALEH BIN DAUD',
     tarikhPengesahanPengetua: '2026-10-01'
   },
   {
@@ -106,7 +106,7 @@ export const DEMO_STUDENTS: PermohonanAsrama[] = [
     tarikhKeputusan: '2026-09-30',
     namaWardenPenilai: 'Cikgu Siti Hajar binti Daud (Warden Aspuri)',
     catatanWarden: 'Borang & perakuan ibu bapa lengkap. Catatan alahan telah direkodkan dalam fail dewan makan.',
-    namaPengetua: 'Tn. Haji Mohd Radzi bin Kassim',
+    namaPengetua: 'SANALEH BIN DAUD',
     tarikhPengesahanPengetua: '2026-10-01'
   }
 ];
@@ -121,8 +121,8 @@ export const SCHOOL_INFO = {
   emel: 'asrama.salaping@moe.edu.my',
   portal: 'www.smksalaping.edu.my',
   logoUrl: salapingLogoUrl,
-  namaPengetua: 'TN. HAJI MOHD RADZI BIN KASSIM',
-  namaKetuaWarden: 'USTAZ AHMAD FAUZI BIN HAMID',
+  namaPengetua: 'SANALEH BIN DAUD',
+  namaKetuaWarden: 'SYED MOHAMAD ASHRAF BIN MOKDIN',
   namaWardenAspuri: 'CIKGU SITI HAJAR BINTI DAUD',
   namaPenyeliaAsrama: 'EN. WAN AZLAN BIN WAN EMBONG'
 };

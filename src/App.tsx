@@ -189,9 +189,9 @@ export default function App() {
     const updatePayload: Partial<PermohonanAsrama> = {
       statusKelulusan: 'DILULUSKAN' as StatusPermohonan,
       tarikhKeputusan: new Date().toISOString().split('T')[0],
-      namaWardenPenilai: 'Ustaz Ahmad Fauzi (Ketua Warden Asrama Salaping)',
+      namaWardenPenilai: 'SYED MOHAMAD ASHRAF BIN MOKDIN (Ketua Warden Asrama Salaping)',
       catatanWarden: 'Permohonan diluluskan setelah semakan dokumen dan slot dorm disahkan.',
-      namaPengetua: 'Tn. Haji Mohd Radzi bin Kassim',
+      namaPengetua: 'SANALEH BIN DAUD',
       tarikhPengesahanPengetua: new Date().toISOString().split('T')[0]
     };
 
@@ -437,14 +437,14 @@ export default function App() {
               </strong>
             </div>
 
-            {/* Direct Pindah Data ke Netlify button */}
+            {/* Direct Pindah Data ke Vercel / Netlify button */}
             <button
               onClick={() => setIsDataTransferModalOpen(true)}
               className="px-3.5 py-2 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-bold rounded-xl text-xs shadow-xs hover:shadow transition-all flex items-center gap-1.5 cursor-pointer shrink-0"
-              title="Salin atau Pindahkan Data Pemohon ke asramasalaping.netlify.app"
+              title="Salin atau Pindahkan Data Pemohon ke Vercel atau Netlify"
             >
               <Globe className="w-4 h-4 text-amber-300" />
-              <span>Pindah Data ke Netlify</span>
+              <span>Pindah Data (Vercel / Netlify)</span>
             </button>
 
             {userRole === 'pemohon' ? (

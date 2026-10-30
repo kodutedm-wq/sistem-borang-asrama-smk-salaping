@@ -246,9 +246,9 @@ export const BorangPermohonanForm: React.FC<BorangPermohonanFormProps> = ({
 
       statusKelulusan,
       tarikhKeputusan: statusKelulusan === 'DILULUSKAN' ? new Date().toISOString().split('T')[0] : '-',
-      namaWardenPenilai: 'Ustaz Ahmad Fauzi (Ketua Warden Asrama Salaping)',
+      namaWardenPenilai: 'SYED MOHAMAD ASHRAF BIN MOKDIN (Ketua Warden Asrama Salaping)',
       catatanWarden,
-      namaPengetua: 'Tn. Haji Mohd Radzi bin Kassim',
+      namaPengetua: 'SANALEH BIN DAUD',
       tarikhPengesahanPengetua: statusKelulusan === 'DILULUSKAN' ? new Date().toISOString().split('T')[0] : ''
     };
 

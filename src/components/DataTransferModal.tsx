@@ -120,13 +120,13 @@ export const DataTransferModal: React.FC<DataTransferModalProps> = ({
             </div>
             <div>
               <h2 className="text-base font-extrabold tracking-tight flex items-center gap-2">
-                <span>Penyegerakan Data ke Netlify</span>
+                <span>Penyegerakan Data (Vercel / Netlify)</span>
                 <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 px-2 py-0.5 rounded-full font-mono">
                   {students.length} Pemohon Sedia Ada
                 </span>
               </h2>
               <p className="text-xs text-slate-300">
-                Pindahkan data antara peranti pratonton dan laman <strong className="text-white font-mono">asramasalaping.netlify.app</strong>
+                Pindahkan data rekod antara sistem pratonton dan domain hos anda (<strong className="text-white font-mono">Vercel / Netlify</strong>)
               </p>
             </div>
           </div>
@@ -174,12 +174,12 @@ export const DataTransferModal: React.FC<DataTransferModalProps> = ({
             <div className="space-y-4">
               <div className="bg-sky-50 border border-sky-200 rounded-2xl p-4 text-xs text-sky-900 space-y-1.5">
                 <div className="font-bold text-sm text-sky-950 flex items-center gap-2">
-                  <span>Langkah Memindahkan ke Laman Netlify:</span>
+                  <span>Langkah Memindahkan ke Laman Vercel / Netlify:</span>
                 </div>
                 <ol className="list-decimal list-inside space-y-1 pl-1 text-[11.5px] text-sky-900 font-medium">
-                  <li>Klik butang <strong>"Salin Kod Teks"</strong> atau <strong>"Muat Turun Fail (.json)"</strong> di bawah.</li>
-                  <li>Buka laman web anda di Netlify: <a href="https://asramasalaping.netlify.app" target="_blank" rel="noreferrer" className="underline font-bold text-blue-700">https://asramasalaping.netlify.app</a></li>
-                  <li>Di Netlify, buka menu ini dan pilih tab <strong>"2. Tampal / Masukkan Data"</strong> untuk memasukkan kesemua {students.length} pelajar.</li>
+                  <li>Klik butang <strong>"Salin Kod Teks ({students.length} Pemohon)"</strong> atau <strong>"Muat Turun Fail (.json)"</strong> di bawah.</li>
+                  <li>Buka laman web rasmi anda yang telah di-deploy di Vercel atau Netlify.</li>
+                  <li>Di laman tersebut, buka menu ini dan pilih tab <strong>"2. Tampal / Masukkan Data"</strong> untuk memasukkan kesemua {students.length} pelajar.</li>
                 </ol>
               </div>
 
