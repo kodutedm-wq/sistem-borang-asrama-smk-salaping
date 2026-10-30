@@ -28,7 +28,7 @@ export const DataTransferModal: React.FC<DataTransferModalProps> = ({
 }) => {
   const [copied, setCopied] = useState(false);
   const [pasteDataText, setPasteDataText] = useState('');
-  const [activeTab, setActiveTab] = useState<'export' | 'import'>('export');
+  const [activeTab, setActiveTab] = useState<'export' | 'import'>(() => students.length > 0 ? 'export' : 'import');
   const [importStatus, setImportStatus] = useState<string | null>(null);
 
   if (!isOpen) return null;
@@ -227,9 +227,9 @@ export const DataTransferModal: React.FC<DataTransferModalProps> = ({
           {activeTab === 'import' && (
             <div className="space-y-4">
               <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 text-xs text-emerald-950 space-y-1">
-                <h4 className="font-bold text-sm">Gunakan Bahagian Ini di Laman Netlify Anda</h4>
+                <h4 className="font-bold text-sm">Gunakan Bahagian Ini di Laman Vercel / Netlify Anda</h4>
                 <p className="text-[11.5px] leading-relaxed">
-                  Tampal kod teks yang disalin daripada sistem ini atau pilih fail JSON yang telah dimuat turun untuk memasukkan kesemua rekod pelajar ke dalam pelayan Netlify.
+                  Tampal kod teks yang disalin daripada sistem ini atau pilih fail JSON yang telah dimuat turun untuk memasukkan kesemua rekod pelajar ke dalam pelayan Vercel / Netlify.
                 </p>
               </div>
 

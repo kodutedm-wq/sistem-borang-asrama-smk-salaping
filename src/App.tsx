@@ -32,15 +32,39 @@ import {
   Globe
 } from 'lucide-react';
 
-const STORAGE_KEY = 'asrama_salaping_prod_clean_v2';
+const MASTER_STORAGE_KEY = 'asrama_salaping_master_v3';
 const MY_SUBMISSION_KEY = 'asrama_salaping_my_submission_v2';
-const HISTORICAL_STORAGE_KEYS = [
+const ALL_STORAGE_KEYS = [
+  'asrama_salaping_master_v3',
   'asrama_salaping_prod_clean_v2',
   'asrama_salaping_students_v1',
   'asrama_salaping_students',
   'permohonan_asrama',
   'asrama_students'
 ];
+
+// Helper to write to ALL local keys at once so they NEVER diverge or resurrect stale/deleted data
+const persistToAllStorage = (items: PermohonanAsrama[]) => {
+  try {
+    const json = JSON.stringify(items);
+    ALL_STORAGE_KEYS.forEach(key => {
+      try {
+        localStorage.setItem(key, json);
+      } catch (e) {}
+    });
+  } catch (err) {
+    console.error("Storage write error:", err);
+  }
+};
+
+// Helper to clear ALL local storage keys
+const clearAllStorage = () => {
+  ALL_STORAGE_KEYS.forEach(key => {
+    try {
+      localStorage.removeItem(key);
+    } catch (e) {}
+  });
+};
 
 // Helper to replace any lingering demo names from earlier records
 const sanitizeOfficialNames = (item: PermohonanAsrama): PermohonanAsrama => {
@@ -98,11 +122,12 @@ export default function App() {
     return null;
   });
 
-  // Students state with localStorage (multi-key union recovery as offline cache) + Cloud Firestore as live master
+  // Students state with bulletproof multi-key scan ONCE on startup, then immediately normalized
   const [students, setStudents] = useState<PermohonanAsrama[]>(() => {
     try {
       const mergedMap = new Map<string, PermohonanAsrama>();
-      for (const key of HISTORICAL_STORAGE_KEYS) {
+      // 1. Scan all storage keys on initial startup
+      ALL_STORAGE_KEYS.forEach(key => {
         const saved = localStorage.getItem(key);
         if (saved) {
           try {
@@ -118,10 +143,13 @@ export default function App() {
             });
           } catch (e) {}
         }
-      }
+      });
+
       if (mergedMap.size > 0) {
         const list = Array.from(mergedMap.values());
         list.sort((a, b) => (b.tarikhPermohonan || '').localeCompare(a.tarikhPermohonan || '') || b.id.localeCompare(a.id));
+        // Immediately normalize all keys to this exact consolidated list!
+        persistToAllStorage(list);
         return list;
       }
     } catch (e) {
@@ -130,7 +158,7 @@ export default function App() {
     return INITIAL_STUDENTS; // []
   });
 
-  // Real-time Cloud Firestore synchronization with Non-Destructive Union Merging
+  // Real-time Cloud Firestore synchronization (Stable, Non-Destructive, No Ghost Resurrections)
   useEffect(() => {
     setIsSyncing(true);
     const unsubscribe = subscribeToPermohonan(
@@ -138,8 +166,6 @@ export default function App() {
         setIsCloudConnected(true);
         setIsSyncing(false);
 
-        // Functional update: NEVER drop any existing local students!
-        // Cloud students + local students are safely united.
         setStudents(prev => {
           const map = new Map<string, PermohonanAsrama>();
 
@@ -150,50 +176,33 @@ export default function App() {
             }
           });
 
-          // 2. Scan historical storage keys to rescue any un-synced students
-          HISTORICAL_STORAGE_KEYS.forEach(key => {
-            const raw = localStorage.getItem(key);
-            if (raw) {
-              try {
-                const parsed = JSON.parse(raw);
-                const items = Array.isArray(parsed) ? parsed : [parsed];
-                items.forEach((item: any) => {
-                  if (item && item.id && item.namaPelajar && !map.has(item.id)) {
-                    map.set(item.id, sanitizeOfficialNames(item as PermohonanAsrama));
-                  }
-                });
-              } catch (e) {}
-            }
-          });
-
-          // 3. Merge in cloud list (cloud records update approval status / timestamps)
-          const cloudIds = new Set(cloudList.map(c => c.id));
+          // 2. Merge cloud updates (e.g. approved statuses, official timestamps)
           cloudList.forEach(s => {
             if (s && s.id && s.namaPelajar) {
-              map.set(s.id, sanitizeOfficialNames(s));
+              const cleanCloud = sanitizeOfficialNames(s);
+              const localExisting = map.get(cleanCloud.id);
+              if (localExisting) {
+                map.set(cleanCloud.id, { ...localExisting, ...cleanCloud });
+              } else {
+                map.set(cleanCloud.id, cleanCloud);
+              }
             }
           });
 
-          // 4. Any record present locally but missing in Cloud Firestore is automatically uploaded!
-          const missingFromCloud: PermohonanAsrama[] = [];
+          // 3. Any record present locally but missing in Cloud Firestore is uploaded in background
+          const cloudIds = new Set(cloudList.map(c => c.id));
           map.forEach((student, id) => {
             if (!cloudIds.has(id)) {
-              missingFromCloud.push(student);
+              savePermohonanToCloud(student).catch(() => {});
             }
           });
 
-          if (missingFromCloud.length > 0) {
-            console.log(`Menyegerakkan ${missingFromCloud.length} rekod pemohon setempat ke Cloud Firestore...`);
-            missingFromCloud.forEach(student => {
-              savePermohonanToCloud(student).catch(err => {
-                console.warn("Auto-sync notice:", err?.message || err);
-              });
-            });
-          }
-
-          const combined = Array.from(map.values());
-          combined.sort((a, b) => (b.tarikhPermohonan || '').localeCompare(a.tarikhPermohonan || '') || b.id.localeCompare(a.id));
-          return combined;
+          const consolidated = Array.from(map.values());
+          consolidated.sort((a, b) => (b.tarikhPermohonan || '').localeCompare(a.tarikhPermohonan || '') || b.id.localeCompare(a.id));
+          
+          // Persist the consolidated list across all local keys
+          persistToAllStorage(consolidated);
+          return consolidated;
         });
       },
       (error) => {
@@ -216,14 +225,10 @@ export default function App() {
   const [activeFilter, setActiveFilter] = useState<'all' | 'Lelaki' | 'Perempuan' | 'DILULUSKAN' | 'MENUNGGU KELULUSAN'>('all');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // Sync to localStorage (only persist when students has data to prevent accidental wiping)
+  // Sync to localStorage as reactive fallback
   useEffect(() => {
-    try {
-      if (students && students.length > 0) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(students));
-      }
-    } catch (e) {
-      console.error("Failed to save to localStorage:", e);
+    if (students && students.length > 0) {
+      persistToAllStorage(students);
     }
   }, [students]);
 
@@ -267,15 +272,18 @@ export default function App() {
       tarikhPengesahanPengetua: new Date().toISOString().split('T')[0]
     };
 
-    // Optimistic UI update
-    setStudents(prev => prev.map(s => s.id === id ? { ...s, ...updatePayload } : s));
+    setStudents(prev => {
+      const next = prev.map(s => s.id === id ? { ...s, ...updatePayload } : s);
+      persistToAllStorage(next);
+      return next;
+    });
 
     try {
       await updatePermohonanStatusInCloud(id, 'DILULUSKAN', updatePayload);
       showToast("Permohonan berjaya DILULUSKAN & disegerakkan ke pangkalan data awan!");
     } catch (e) {
       console.error("Cloud update error:", e);
-      showToast("Permohonan diluluskan (mod tempatan).");
+      showToast("Permohonan diluluskan (mod tempatan terpelihara).");
     }
   };
 
@@ -286,7 +294,11 @@ export default function App() {
       tarikhKeputusan: newStatus === 'DILULUSKAN' ? new Date().toISOString().split('T')[0] : '-'
     };
 
-    setStudents(prev => prev.map(s => s.id === id ? { ...s, ...updatePayload } : s));
+    setStudents(prev => {
+      const next = prev.map(s => s.id === id ? { ...s, ...updatePayload } : s);
+      persistToAllStorage(next);
+      return next;
+    });
 
     try {
       await updatePermohonanStatusInCloud(id, newStatus, updatePayload);
@@ -298,13 +310,20 @@ export default function App() {
 
   // Delete student
   const handleDeleteStudent = async (id: string) => {
-    if (confirm("Adakah anda pasti ingin memadamkan permohonan ini?")) {
-      setStudents(prev => prev.filter(s => s.id !== id));
+    const target = students.find(s => s.id === id);
+    const name = target?.namaPelajar || 'permohonan';
+
+    if (confirm(`Adakah anda pasti ingin memadamkan permohonan ${name}?`)) {
+      setStudents(prev => {
+        const next = prev.filter(s => s.id !== id);
+        persistToAllStorage(next);
+        return next;
+      });
+
       try {
         await deletePermohonanFromCloud(id);
-        showToast("Rekod permohonan telah dipadam daripada pangkalan data awan.");
+        showToast("Rekod permohonan telah dipadam.");
       } catch (e) {
-        console.error("Cloud delete error:", e);
         showToast("Rekod permohonan telah dipadam.");
       }
     }
@@ -312,36 +331,38 @@ export default function App() {
 
   // Save new or updated student
   const handleSaveStudent = async (savedStudent: PermohonanAsrama) => {
+    const cleanStudent = sanitizeOfficialNames(savedStudent);
+
     // 1. Immediately store to this applicant's dedicated session & localStorage
-    setMySubmission(savedStudent);
+    setMySubmission(cleanStudent);
     try {
-      localStorage.setItem(MY_SUBMISSION_KEY, JSON.stringify(savedStudent));
+      localStorage.setItem(MY_SUBMISSION_KEY, JSON.stringify(cleanStudent));
     } catch (e) {
       console.error(e);
     }
 
     // 2. Set active student and tab
-    setSelectedStudentId(savedStudent.id);
+    setSelectedStudentId(cleanStudent.id);
     setEditingStudent(null);
     setActiveTab('borang-a4');
 
-    // 3. Optimistic UI update for students list
+    // 3. UI update and immediate persistence to all storage keys
     setStudents(prev => {
-      const exists = prev.some(s => s.id === savedStudent.id);
-      if (exists) {
-        return prev.map(s => s.id === savedStudent.id ? savedStudent : s);
-      } else {
-        return [savedStudent, ...prev];
-      }
+      const exists = prev.some(s => s.id === cleanStudent.id);
+      const next = exists
+        ? prev.map(s => s.id === cleanStudent.id ? cleanStudent : s)
+        : [cleanStudent, ...prev];
+      persistToAllStorage(next);
+      return next;
     });
 
     // 4. Save to Cloud Firestore
     try {
-      await savePermohonanToCloud(savedStudent);
-      showToast(`✓ Permohonan untuk ${savedStudent.namaPelajar} berjaya didaftarkan ke Pangkalan Data Sekolah!`);
+      await savePermohonanToCloud(cleanStudent);
+      showToast(`✓ Permohonan untuk ${cleanStudent.namaPelajar} berjaya didaftarkan ke Pangkalan Data Sekolah!`);
     } catch (err) {
       console.error("Cloud save error:", err);
-      showToast(`✓ Borang permohonan untuk ${savedStudent.namaPelajar} disimpan di peranti ini.`);
+      showToast(`✓ Borang permohonan untuk ${cleanStudent.namaPelajar} disimpan selamat di peranti ini.`);
     }
   };
 
@@ -351,7 +372,7 @@ export default function App() {
       const toDelete = [...students];
       setStudents([]);
       setSelectedStudentId(null);
-      localStorage.removeItem(STORAGE_KEY);
+      clearAllStorage();
 
       try {
         await Promise.all(toDelete.map(s => deletePermohonanFromCloud(s.id)));
@@ -367,6 +388,7 @@ export default function App() {
   const handleLoadDemo = async () => {
     if (confirm("Adakah anda ingin memuatkan data contoh demo untuk tujuan ujian sistem?")) {
       setStudents(DEMO_STUDENTS);
+      persistToAllStorage(DEMO_STUDENTS);
       setSelectedStudentId(DEMO_STUDENTS[0].id);
       try {
         await Promise.all(DEMO_STUDENTS.map(s => savePermohonanToCloud(s)));
@@ -403,10 +425,12 @@ export default function App() {
       try {
         const imported: PermohonanAsrama[] = JSON.parse(event.target?.result as string);
         if (Array.isArray(imported) && imported.length > 0) {
-          setStudents(imported);
+          const cleaned = imported.map(s => sanitizeOfficialNames(s));
+          setStudents(cleaned);
+          persistToAllStorage(cleaned);
           // Sync each imported record to cloud if possible
-          imported.forEach(item => savePermohonanToCloud(item).catch(() => {}));
-          showToast(`Berjaya memulihkan ${imported.length} rekod pemohon daripada fail sandaran!`);
+          cleaned.forEach(item => savePermohonanToCloud(item).catch(() => {}));
+          showToast(`Berjaya memulihkan ${cleaned.length} rekod pemohon daripada fail sandaran!`);
         } else {
           alert("Format fail tidak mengandungi senarai pemohon yang sah.");
         }
@@ -571,6 +595,7 @@ export default function App() {
                 setActiveTab('form');
               }}
               onImportBackup={() => backupInputRef.current?.click()}
+              onOpenDataTransfer={() => setIsDataTransferModalOpen(true)}
             />
 
             {/* Bottom Admin Helper: State management & Data Backup */}
@@ -765,9 +790,11 @@ export default function App() {
         onClose={() => setIsDataTransferModalOpen(false)}
         students={students}
         onImportStudents={(imported) => {
-          setStudents(imported);
-          imported.forEach(s => savePermohonanToCloud(s).catch(() => {}));
-          showToast(`✓ Berjaya memasukkan ${imported.length} rekod pemohon ke dalam sistem!`);
+          const cleaned = imported.map(s => sanitizeOfficialNames(s));
+          setStudents(cleaned);
+          persistToAllStorage(cleaned);
+          cleaned.forEach(s => savePermohonanToCloud(s).catch(() => {}));
+          showToast(`✓ Berjaya memasukkan ${cleaned.length} rekod pemohon ke dalam sistem!`);
         }}
       />
 

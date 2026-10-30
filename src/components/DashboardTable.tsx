@@ -14,7 +14,8 @@ import {
   Lock,
   ArrowRight,
   Stethoscope,
-  Eye
+  Eye,
+  Globe
 } from 'lucide-react';
 
 interface DashboardTableProps {
@@ -27,6 +28,7 @@ interface DashboardTableProps {
   onJanaSenaraiPengetua: () => void;
   onNewApplication?: () => void;
   onImportBackup?: () => void;
+  onOpenDataTransfer?: () => void;
 }
 
 export const DashboardTable: React.FC<DashboardTableProps> = ({
@@ -38,7 +40,8 @@ export const DashboardTable: React.FC<DashboardTableProps> = ({
   onToggleStatus,
   onJanaSenaraiPengetua,
   onNewApplication,
-  onImportBackup
+  onImportBackup,
+  onOpenDataTransfer
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedHealthDocStudent, setSelectedHealthDocStudent] = useState<PermohonanAsrama | null>(null);
@@ -314,6 +317,15 @@ export const DashboardTable: React.FC<DashboardTableProps> = ({
                     </p>
                     {!searchTerm && (
                       <div className="flex flex-wrap items-center justify-center gap-2">
+                        {onOpenDataTransfer && (
+                          <button
+                            onClick={onOpenDataTransfer}
+                            className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white text-xs font-bold rounded-xl shadow-xs transition-colors cursor-pointer flex items-center gap-1.5"
+                          >
+                            <Globe className="w-4 h-4 text-amber-300" />
+                            <span>Pindah / Masukkan Data (Vercel / Netlify)</span>
+                          </button>
+                        )}
                         {onNewApplication && (
                           <button
                             onClick={onNewApplication}
