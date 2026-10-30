@@ -145,17 +145,23 @@ export default function App() {
         }
       });
 
-      if (mergedMap.size > 0) {
-        const list = Array.from(mergedMap.values());
-        list.sort((a, b) => (b.tarikhPermohonan || '').localeCompare(a.tarikhPermohonan || '') || b.id.localeCompare(a.id));
-        // Immediately normalize all keys to this exact consolidated list!
-        persistToAllStorage(list);
-        return list;
-      }
+      // Seed with INITIAL_STUDENTS (18 official records) so Vercel or any fresh device always has full records
+      INITIAL_STUDENTS.forEach(student => {
+        if (!mergedMap.has(student.id)) {
+          mergedMap.set(student.id, student);
+        }
+      });
+
+      const list = Array.from(mergedMap.values());
+      list.sort((a, b) => (b.tarikhPermohonan || '').localeCompare(a.tarikhPermohonan || '') || b.id.localeCompare(a.id));
+      // Immediately normalize all keys to this consolidated list!
+      persistToAllStorage(list);
+      return list;
     } catch (e) {
       console.error("Error loading stored students:", e);
     }
-    return INITIAL_STUDENTS; // []
+    persistToAllStorage(INITIAL_STUDENTS);
+    return INITIAL_STUDENTS;
   });
 
   // Real-time Cloud Firestore synchronization (Stable, Non-Destructive, No Ghost Resurrections)
@@ -596,6 +602,7 @@ export default function App() {
               }}
               onImportBackup={() => backupInputRef.current?.click()}
               onOpenDataTransfer={() => setIsDataTransferModalOpen(true)}
+              onSelectFilter={setActiveFilter}
             />
 
             {/* Bottom Admin Helper: State management & Data Backup */}

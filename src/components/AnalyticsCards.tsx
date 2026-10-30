@@ -98,16 +98,17 @@ export const AnalyticsCards: React.FC<AnalyticsCardsProps> = ({
 
         {/* Card 2: Aspura (Lelaki) - Soft Sky/Ocean */}
         <div 
-          onClick={() => onSelectFilter('Lelaki')}
+          onClick={() => onSelectFilter(activeFilter === 'Lelaki' ? 'all' : 'Lelaki')}
           className={`cursor-pointer p-4 rounded-2xl border transition-all ${
             activeFilter === 'Lelaki'
               ? 'bg-blue-900 text-white border-blue-900 shadow-md ring-2 ring-blue-500/20 scale-[1.01]'
               : 'bg-gradient-to-br from-white via-sky-50/60 to-blue-50/30 text-slate-800 border-sky-100 hover:border-sky-300 shadow-xs hover:shadow-sm'
           }`}
+          title={activeFilter === 'Lelaki' ? 'Klik untuk buang tapisan (tunjuk semua 18)' : 'Klik untuk tapis 9 pemohon Aspura'}
         >
           <div className="flex items-center justify-between">
             <span className={`text-xs font-bold ${activeFilter === 'Lelaki' ? 'text-blue-200' : 'text-slate-600'}`}>
-              Aspura (Lelaki)
+              Aspura (Lelaki) {activeFilter === 'Lelaki' && '✓ Aktif'}
             </span>
             <div className={`p-2 rounded-xl ${activeFilter === 'Lelaki' ? 'bg-blue-800 text-blue-200' : 'bg-sky-50 text-sky-700 border border-sky-100'}`}>
               <UserCheck className="w-4 h-4" />
@@ -126,7 +127,7 @@ export const AnalyticsCards: React.FC<AnalyticsCardsProps> = ({
           <div className={`mt-3 pt-3 border-t text-xs flex justify-between ${
             activeFilter === 'Lelaki' ? 'border-blue-800 text-blue-200' : 'border-sky-100 text-slate-500'
           }`}>
-            <span>Blok Asrama Putera</span>
+            <span>{activeFilter === 'Lelaki' ? 'Klik untuk batal tapisan' : 'Blok Asrama Putera'}</span>
             <span className="font-semibold tabular-nums">
               {totalPemohon > 0 ? Math.round((totalAspura / totalPemohon) * 100) : 0}%
             </span>
@@ -135,16 +136,17 @@ export const AnalyticsCards: React.FC<AnalyticsCardsProps> = ({
 
         {/* Card 3: Aspuri (Perempuan) - Soft Rose/Blush */}
         <div 
-          onClick={() => onSelectFilter('Perempuan')}
+          onClick={() => onSelectFilter(activeFilter === 'Perempuan' ? 'all' : 'Perempuan')}
           className={`cursor-pointer p-4 rounded-2xl border transition-all ${
             activeFilter === 'Perempuan'
               ? 'bg-rose-900 text-white border-rose-900 shadow-md ring-2 ring-rose-500/20 scale-[1.01]'
               : 'bg-gradient-to-br from-white via-rose-50/50 to-pink-50/30 text-slate-800 border-rose-100 hover:border-rose-300 shadow-xs hover:shadow-sm'
           }`}
+          title={activeFilter === 'Perempuan' ? 'Klik untuk buang tapisan (tunjuk semua 18)' : 'Klik untuk tapis 9 pemohon Aspuri'}
         >
           <div className="flex items-center justify-between">
             <span className={`text-xs font-bold ${activeFilter === 'Perempuan' ? 'text-rose-200' : 'text-slate-600'}`}>
-              Aspuri (Perempuan)
+              Aspuri (Perempuan) {activeFilter === 'Perempuan' && '✓ Aktif'}
             </span>
             <div className={`p-2 rounded-xl ${activeFilter === 'Perempuan' ? 'bg-rose-800 text-rose-200' : 'bg-rose-50 text-rose-700 border border-rose-100'}`}>
               <UserCheck className="w-4 h-4" />
@@ -163,7 +165,7 @@ export const AnalyticsCards: React.FC<AnalyticsCardsProps> = ({
           <div className={`mt-3 pt-3 border-t text-xs flex justify-between ${
             activeFilter === 'Perempuan' ? 'border-rose-800 text-rose-200' : 'border-rose-100 text-slate-500'
           }`}>
-            <span>Blok Asrama Puteri</span>
+            <span>{activeFilter === 'Perempuan' ? 'Klik untuk batal tapisan' : 'Blok Asrama Puteri'}</span>
             <span className="font-semibold tabular-nums">
               {totalPemohon > 0 ? Math.round((totalAspuri / totalPemohon) * 100) : 0}%
             </span>
@@ -172,7 +174,7 @@ export const AnalyticsCards: React.FC<AnalyticsCardsProps> = ({
 
         {/* Card 4: Bayaran Bon Asrama - Soft Honey/Amber */}
         <div 
-          onClick={() => onSelectFilter('DILULUSKAN')}
+          onClick={() => onSelectFilter(activeFilter === 'DILULUSKAN' ? 'all' : 'DILULUSKAN')}
           className={`cursor-pointer p-4 rounded-2xl border transition-all ${
             activeFilter === 'DILULUSKAN'
               ? 'bg-amber-950 text-white border-amber-950 shadow-md ring-2 ring-amber-500/20 scale-[1.01]'

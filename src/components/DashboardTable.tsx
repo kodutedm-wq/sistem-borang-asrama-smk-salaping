@@ -29,6 +29,7 @@ interface DashboardTableProps {
   onNewApplication?: () => void;
   onImportBackup?: () => void;
   onOpenDataTransfer?: () => void;
+  onSelectFilter?: (filter: any) => void;
 }
 
 export const DashboardTable: React.FC<DashboardTableProps> = ({
@@ -41,7 +42,8 @@ export const DashboardTable: React.FC<DashboardTableProps> = ({
   onJanaSenaraiPengetua,
   onNewApplication,
   onImportBackup,
-  onOpenDataTransfer
+  onOpenDataTransfer,
+  onSelectFilter
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedHealthDocStudent, setSelectedHealthDocStudent] = useState<PermohonanAsrama | null>(null);
@@ -93,7 +95,21 @@ export const DashboardTable: React.FC<DashboardTableProps> = ({
         </div>
 
         <div className="flex items-center gap-2 text-xs text-slate-600 font-medium">
-          <span>Menunjukkan <strong className="text-slate-900 font-bold">{filteredStudents.length}</strong> daripada {students.length} rekod</span>
+          {activeFilter !== 'all' ? (
+            <div className="flex items-center gap-2 bg-amber-50 border border-amber-300 text-amber-950 px-3 py-1 rounded-xl text-xs font-semibold">
+              <span>Tapisan aktif: <strong className="uppercase text-amber-900">{activeFilter}</strong> ({filteredStudents.length} daripada {students.length} rekod)</span>
+              {onSelectFilter && (
+                <button
+                  onClick={() => onSelectFilter('all')}
+                  className="ml-1 text-slate-900 underline font-black hover:text-rose-700 cursor-pointer text-[11px]"
+                >
+                  Batal Tapisan / Tunjuk Semua ({students.length})
+                </button>
+              )}
+            </div>
+          ) : (
+            <span>Menunjukkan <strong className="text-slate-900 font-bold">{filteredStudents.length}</strong> daripada {students.length} rekod</span>
+          )}
         </div>
       </div>
 
