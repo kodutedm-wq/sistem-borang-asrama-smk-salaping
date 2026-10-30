@@ -64,17 +64,30 @@ export default function App() {
     return null;
   });
 
-  // Students state with localStorage (as offline cache) + Cloud Firestore as live master
+  // Students state with localStorage (multi-key union recovery as offline cache) + Cloud Firestore as live master
   const [students, setStudents] = useState<PermohonanAsrama[]>(() => {
     try {
+      const mergedMap = new Map<string, PermohonanAsrama>();
       for (const key of HISTORICAL_STORAGE_KEYS) {
         const saved = localStorage.getItem(key);
         if (saved) {
-          const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            return parsed;
-          }
+          try {
+            const parsed = JSON.parse(saved);
+            const items = Array.isArray(parsed) ? parsed : [parsed];
+            items.forEach((item: any) => {
+              if (item && item.id && item.namaPelajar) {
+                if (!mergedMap.has(item.id)) {
+                  mergedMap.set(item.id, item as PermohonanAsrama);
+                }
+              }
+            });
+          } catch (e) {}
         }
+      }
+      if (mergedMap.size > 0) {
+        const list = Array.from(mergedMap.values());
+        list.sort((a, b) => (b.tarikhPermohonan || '').localeCompare(a.tarikhPermohonan || '') || b.id.localeCompare(a.id));
+        return list;
       }
     } catch (e) {
       console.error("Error loading stored students:", e);
@@ -82,20 +95,27 @@ export default function App() {
     return INITIAL_STUDENTS; // []
   });
 
-  // Real-time Cloud Firestore synchronization + Automatic Migration of Previous Local Submissions
+  // Real-time Cloud Firestore synchronization with Non-Destructive Union Merging
   useEffect(() => {
     setIsSyncing(true);
     const unsubscribe = subscribeToPermohonan(
       (cloudList) => {
-        setStudents(cloudList);
         setIsCloudConnected(true);
         setIsSyncing(false);
 
-        // Auto-migrate previous local submissions from all possible storage keys
-        try {
-          const cloudIds = new Set(cloudList.map(c => c.id));
-          const migratedStudents: PermohonanAsrama[] = [];
+        // Functional update: NEVER drop any existing local students!
+        // Cloud students + local students are safely united.
+        setStudents(prev => {
+          const map = new Map<string, PermohonanAsrama>();
 
+          // 1. Preserve all existing local students
+          prev.forEach(s => {
+            if (s && s.id && s.namaPelajar) {
+              map.set(s.id, s);
+            }
+          });
+
+          // 2. Scan historical storage keys to rescue any un-synced students
           HISTORICAL_STORAGE_KEYS.forEach(key => {
             const raw = localStorage.getItem(key);
             if (raw) {
@@ -103,28 +123,43 @@ export default function App() {
                 const parsed = JSON.parse(raw);
                 const items = Array.isArray(parsed) ? parsed : [parsed];
                 items.forEach((item: any) => {
-                  if (item && item.id && item.namaPelajar && !cloudIds.has(item.id)) {
-                    migratedStudents.push(item as PermohonanAsrama);
-                    cloudIds.add(item.id);
+                  if (item && item.id && item.namaPelajar && !map.has(item.id)) {
+                    map.set(item.id, item as PermohonanAsrama);
                   }
                 });
-              } catch (err) {
-                // Ignore parse errors on irrelevant keys
-              }
+              } catch (e) {}
             }
           });
 
-          if (migratedStudents.length > 0) {
-            console.log(`Menyegerakkan ${migratedStudents.length} rekod lama ke Cloud Firestore...`);
-            Promise.all(migratedStudents.map(s => savePermohonanToCloud(s)))
-              .then(() => {
-                showToast(`✓ ${migratedStudents.length} rekod permohonan lama berjaya disegerakkan ke pangkalan data awan!`);
-              })
-              .catch(console.error);
+          // 3. Merge in cloud list (cloud records update approval status / timestamps)
+          const cloudIds = new Set(cloudList.map(c => c.id));
+          cloudList.forEach(s => {
+            if (s && s.id && s.namaPelajar) {
+              map.set(s.id, s);
+            }
+          });
+
+          // 4. Any record present locally but missing in Cloud Firestore is automatically uploaded!
+          const missingFromCloud: PermohonanAsrama[] = [];
+          map.forEach((student, id) => {
+            if (!cloudIds.has(id)) {
+              missingFromCloud.push(student);
+            }
+          });
+
+          if (missingFromCloud.length > 0) {
+            console.log(`Menyegerakkan ${missingFromCloud.length} rekod pemohon setempat ke Cloud Firestore...`);
+            missingFromCloud.forEach(student => {
+              savePermohonanToCloud(student).catch(err => {
+                console.warn("Auto-sync notice:", err?.message || err);
+              });
+            });
           }
-        } catch (e) {
-          console.error("Auto-sync migration error:", e);
-        }
+
+          const combined = Array.from(map.values());
+          combined.sort((a, b) => (b.tarikhPermohonan || '').localeCompare(a.tarikhPermohonan || '') || b.id.localeCompare(a.id));
+          return combined;
+        });
       },
       (error) => {
         setIsSyncing(false);
@@ -146,10 +181,12 @@ export default function App() {
   const [activeFilter, setActiveFilter] = useState<'all' | 'Lelaki' | 'Perempuan' | 'DILULUSKAN' | 'MENUNGGU KELULUSAN'>('all');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // Sync to localStorage
+  // Sync to localStorage (only persist when students has data to prevent accidental wiping)
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(students));
+      if (students && students.length > 0) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(students));
+      }
     } catch (e) {
       console.error("Failed to save to localStorage:", e);
     }
