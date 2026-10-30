@@ -127,10 +127,23 @@ export const BorangA4Official: React.FC<BorangA4OfficialProps> = ({
 
   const isApproved = student.statusKelulusan === 'DILULUSKAN';
 
-  // Sanitized Warden & Pengetua Name (Replaces any old demo names on existing records)
-  const officialWardenName = (!student.namaWardenPenilai || student.namaWardenPenilai.includes('Ahmad Fauzi') || student.namaWardenPenilai.includes('Fauzi'))
-    ? 'SYED MOHAMAD ASHRAF BIN MOKDIN (Ketua Warden Asrama Salaping)'
-    : student.namaWardenPenilai;
+  // Sanitized Warden & Pengetua Name with separate title
+  const rawWarden = student.namaWardenPenilai || '';
+  const isDemoOrOld = !rawWarden || rawWarden.includes('Ahmad Fauzi') || rawWarden.includes('Fauzi');
+  
+  let cleanWardenName = 'SYED MOHAMAD ASHRAF BIN MOKDIN';
+  let cleanWardenTitle = 'Ketua Warden Asrama Salaping';
+
+  if (!isDemoOrOld && rawWarden) {
+    if (rawWarden.includes('(')) {
+      const parts = rawWarden.split('(');
+      cleanWardenName = parts[0].trim();
+      cleanWardenTitle = parts[1].replace(')', '').trim();
+    } else {
+      cleanWardenName = rawWarden.trim();
+      cleanWardenTitle = 'Warden Bertugas';
+    }
+  }
 
   const officialPengetuaName = (!student.namaPengetua || student.namaPengetua.includes('Radzi') || student.namaPengetua.includes('Kassim'))
     ? 'SANALEH BIN DAUD'
@@ -616,11 +629,11 @@ export const BorangA4Official: React.FC<BorangA4OfficialProps> = ({
                 <div className="grid grid-cols-3 gap-3 pt-1 border-b border-slate-200 pb-2">
                   
                   {/* Tandatangan Ibu Bapa */}
-                  <div className="flex flex-col justify-between text-[9px] h-20">
+                  <div className="flex flex-col justify-between text-[9px] min-h-[5.25rem]">
                     <div className="text-slate-600 font-semibold text-center border-b border-slate-200 pb-0.5">
                       Tandatangan Ibu/Bapa/Penjaga
                     </div>
-                    <div className="h-8 flex items-center justify-center">
+                    <div className="h-7 flex items-center justify-center">
                       <span className="font-serif italic text-slate-700 text-xs">
                         {student.namaPenjaga ? `${student.namaPenjaga.split(' ')[0]}` : '_________________'}
                       </span>
@@ -632,11 +645,11 @@ export const BorangA4Official: React.FC<BorangA4OfficialProps> = ({
                   </div>
 
                   {/* Tandatangan Pelajar */}
-                  <div className="flex flex-col justify-between text-[9px] h-20 border-x border-slate-200 px-2">
+                  <div className="flex flex-col justify-between text-[9px] min-h-[5.25rem] border-x border-slate-200 px-2">
                     <div className="text-slate-600 font-semibold text-center border-b border-slate-200 pb-0.5">
                       Tandatangan Pelajar
                     </div>
-                    <div className="h-8 flex items-center justify-center">
+                    <div className="h-7 flex items-center justify-center">
                       <span className="font-serif italic text-slate-700 text-xs">
                         {student.namaPelajar ? `${student.namaPelajar.split(' ')[0]}` : '_________________'}
                       </span>
@@ -648,11 +661,11 @@ export const BorangA4Official: React.FC<BorangA4OfficialProps> = ({
                   </div>
 
                   {/* Pengesahan Warden */}
-                  <div className="flex flex-col justify-between text-[9px] h-20">
+                  <div className="flex flex-col justify-between text-[9px] min-h-[5.25rem]">
                     <div className="text-slate-600 font-semibold text-center border-b border-slate-200 pb-0.5">
                       Untuk Kegunaan Warden Bertugas
                     </div>
-                    <div className="h-8 flex items-center justify-center">
+                    <div className="h-7 flex items-center justify-center">
                       {isApproved ? (
                         <div className="border border-emerald-600 text-emerald-800 text-[8px] font-bold px-2 py-0.5 rounded-xs uppercase tracking-tight flex items-center gap-1">
                           <CheckCircle2 className="w-2.5 h-2.5 text-emerald-700" />
@@ -664,9 +677,16 @@ export const BorangA4Official: React.FC<BorangA4OfficialProps> = ({
                         </div>
                       )}
                     </div>
-                    <div className="text-[8.5px] text-slate-600">
-                      <div>Nama/Cop: <span className="font-medium text-slate-900 truncate">{officialWardenName}</span></div>
-                      <div>Tarikh: <span className="font-mono">{student.tarikhKeputusan !== '-' ? student.tarikhKeputusan : student.tarikhPermohonan}</span></div>
+                    <div className="text-[8px] text-slate-600 leading-tight">
+                      <div className="font-bold text-slate-900 truncate uppercase" title={cleanWardenName}>
+                        {cleanWardenName}
+                      </div>
+                      <div className="text-[7.5px] text-slate-500 font-medium truncate">
+                        ({cleanWardenTitle})
+                      </div>
+                      <div className="mt-0.5 text-slate-500">
+                        Tarikh: <span className="font-mono font-medium text-slate-800">{student.tarikhKeputusan !== '-' ? student.tarikhKeputusan : student.tarikhPermohonan}</span>
+                      </div>
                     </div>
                   </div>
 
